@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- AWS Amplify UI Components -->
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar" style="background: linear-gradient(135deg, #ff8c00 0%, #ff7a00 100%); margin-bottom: 0;">
+    <h2>Banidfy</h2>
+    <a href="index.html">Home</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Login to Banidfy</h2>
+
+        <input id="email" placeholder="Email" type="email" required>
+        <input id="password" type="password" placeholder="Password" required>
+
+        <button onclick="login()" class="btn-primary">Login</button>
+        <p id="loginError" style="color: red; font-size: 0.9rem;"></p>
+
+        <hr style="margin: 20px 0;">
+        <p style="font-size: 0.9rem; color: #666;">
+            Don't have an account? <a href="#" onclick="showSignUp()">Sign up here</a>
+        </p>
+    </div>
+</div>
+
+<!-- Sign Up Form (hidden by default) -->
+<div id="signupModal" style="display: none;" class="modal">
+    <div class="card modal-content">
+        <h2>Create Account</h2>
+        <input id="signupEmail" placeholder="Email" type="email" required>
+        <input id="signupPassword" type="password" placeholder="Password" required>
+        <input id="signupConfirm" type="password" placeholder="Confirm Password" required>
+        
+        <button onclick="signUp()" class="btn-primary">Create Account</button>
+        <button onclick="closeSignUp()" class="btn-secondary">Cancel</button>
+        <p id="signupError" style="color: red; font-size: 0.9rem;"></p>
+    </div>
+</div>
+
+<script type="module">
+    import { Auth } from 'aws-amplify';
+    import './aws-config.js';
+    import { login, logout } from './app.js';
+    
+    // Expose to global scope
+    window.login = login;
+    window.logout = logout;
+    
+    function showSignUp() {
+        document.getElementById('signupModal').style.display = 'flex';
+    }
+    
+    function closeSignUp() {
+        document.getElementById('signupModal').style.display = 'none';
+    }
+    
+    async function signUp() {
+        try {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirm').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('signupError').innerText = 'Passwords do not match';
+                return;
+            }
+            
+            await Auth.signUp({
+                username: email,
+                password: password,
+                attributes: {
+                    email: email
+                }
+            });
+            
+            alert('Check your email for confirmation code');
+            closeSignUp();
+        } catch (error) {
+            document.getElementById('signupError').innerText = error.message;
+        }
+    }
+    
+    window.showSignUp = showSignUp;
+    window.closeSignUp = closeSignUp;
+    window.signUp = signUp;
+</script>
+
+<script src="js/app.js" type="module"></script>
+

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listening Practice - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>Listening Practice</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="dashboard.html" style="margin-left: 10px;">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Audio Playback Section -->
+    <div class="card">
+        <h3>IELTS-Style Listening Test</h3>
+        <p style="color: #666; margin-bottom: 15px;">Listen to the audio and answer the questions below</p>
+        
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <h4 style="margin-top: 0;">Audio Recording</h4>
+            <audio id="audioPlayer" style="width: 100%; margin-bottom: 15px;" controls>
+                <source src="audio/ielts-recording.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <p style="font-size: 0.9rem; color: #888; margin: 0;">
+                <em>Play the audio above. You can listen multiple times.</em>
+            </p>
+        </div>
+    </div>
+
+    <!-- Question Types Section -->
+    <div class="card">
+        <h3>Question Type 1: Multiple Choice</h3>
+        <p style="font-weight: 500; margin: 10px 0;">According to the speaker, what is the main topic of discussion?</p>
+        
+        <div style="margin: 15px 0;">
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q1" value="a"> 
+                <span style="margin-left: 8px;">Climate change and its effects</span>
+            </label>
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q1" value="b"> 
+                <span style="margin-left: 8px;">Environmental protection strategies</span>
+            </label>
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q1" value="c"> 
+                <span style="margin-left: 8px;">Global economic trends</span>
+            </label>
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q1" value="d"> 
+                <span style="margin-left: 8px;">Technological innovations</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Fill in the Blanks -->
+    <div class="card">
+        <h3>Question Type 2: Fill in the Blanks</h3>
+        <p style="font-weight: 500; margin: 10px 0;">Complete the sentence with the word you hear:</p>
+        
+        <div style="margin: 15px 0;">
+            <p style="margin: 10px 0;">
+                The speaker mentions that sustainable practices are <input type="text" id="q2" placeholder="Type the word..." style="padding: 8px; width: 150px; border: 1px solid #ddd; border-radius: 4px;"> for the future.
+            </p>
+        </div>
+    </div>
+
+    <!-- Short Answer Questions -->
+    <div class="card">
+        <h3>Question Type 3: Short Answer</h3>
+        <p style="font-weight: 500; margin: 10px 0;">What specific examples does the speaker provide?</p>
+        
+        <div style="margin: 15px 0;">
+            <textarea 
+                id="q3"
+                placeholder="Write your answer based on what you heard in the audio..."
+                rows="4"
+                style="width: 100%; padding: 10px; font-size: 0.95rem; border: 1px solid #ddd; border-radius: 4px;">
+            </textarea>
+        </div>
+    </div>
+
+    <!-- True/False/Not Given -->
+    <div class="card">
+        <h3>Question Type 4: True/False/Not Given</h3>
+        <p style="font-weight: 500; margin: 10px 0;">The speaker has worked in environmental projects for over 10 years.</p>
+        
+        <div style="margin: 15px 0;">
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q4" value="true"> 
+                <span style="margin-left: 8px;">True</span>
+            </label>
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q4" value="false"> 
+                <span style="margin-left: 8px;">False</span>
+            </label>
+            <label style="display: block; margin: 10px 0; cursor: pointer;">
+                <input type="radio" name="q4" value="notgiven"> 
+                <span style="margin-left: 8px;">Not Given</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="card" style="text-align: center;">
+        <button onclick="submitListeningTest()" class="btn-primary" style="padding: 12px 30px; font-size: 1rem;">
+            Submit Answers
+        </button>
+        <p id="scoreMessage" style="margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 5px;"></p>
+    </div>
+
+    <!-- Transcript Section -->
+    <div class="card" style="background: #f0f0f0;">
+        <h3>Full Transcript</h3>
+        <button onclick="toggleTranscript()" class="btn-secondary" style="margin-bottom: 15px;">Show Transcript</button>
+        
+        <div id="transcriptSection" style="display: none; background: white; padding: 15px; border-radius: 5px; margin-top: 10px;">
+            <p style="line-height: 1.8; color: #333;">
+                "Good morning, everyone. Today, I'd like to discuss the urgent need for environmental protection and sustainable practices in our society. Climate change is no longer a distant threat; it's affecting our communities right now. 
+                <br><br>
+                Over the past decade, I've been involved in various environmental projects across different regions. What I've learned is that sustainable development is essential for our future. Let me share some specific examples: 
+                <br><br>
+                First, renewable energy sources like solar and wind power are becoming increasingly important. Second, proper waste management and recycling programs can significantly reduce our carbon footprint. Third, conservation of natural resources such as water and forests is crucial for maintaining ecological balance.
+                <br><br>
+                The evidence is clear: when communities invest in these strategies, they see measurable improvements in air quality, water purity, and overall quality of life. Thank you."
+            </p>
+        </div>
+    </div>
+
+    <!-- Answer Review Section -->
+    <div class="card" style="background: #f9f9f9;">
+        <h3>Answer Review</h3>
+        <p id="reviewSection" style="color: #666;">Your scores and detailed feedback will appear here after submission.</p>
+    </div>
+
+</div>
+
+<script type="module">
+    import './aws-config.js';
+    import { submitListeningTest } from './app.js';
+    
+    window.submitListeningTest = submitListeningTest;
+    
+    function toggleTranscript() {
+        const transcriptSection = document.getElementById('transcriptSection');
+        const button = event.target;
+        
+        if (transcriptSection.style.display === 'none') {
+            transcriptSection.style.display = 'block';
+            button.innerText = 'Hide Transcript';
+        } else {
+            transcriptSection.style.display = 'none';
+            button.innerText = 'Show Transcript';
+        }
+    }
+    
+    window.toggleTranscript = toggleTranscript;
+    
+    // Override submitListeningTest to provide local scoring
+    window.submitListeningTest = async function() {
+        const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+        const q2 = document.getElementById('q2').value.toLowerCase().trim();
+        const q3 = document.getElementById('q3').value.trim();
+        const q4 = document.querySelector('input[name="q4"]:checked')?.value;
+        
+        if (!q1 || !q2 || !q3 || !q4) {
+            alert('Please answer all questions');
+            return;
+        }
+        
+        // Simple scoring logic
+        let score = 0;
+        let totalQuestions = 4;
+        
+        // Q1 scoring (correct answer is 'b')
+        if (q1 === 'b') score += 1;
+        
+        // Q2 scoring (accept variations of "essential" or "important")
+        if (q2.includes('essential') || q2.includes('important') || q2.includes('crucial')) {
+            score += 1;
+        }
+        
+        // Q3 scoring (check if answer is not empty - length based)
+        if (q3.length > 20) score += 1;
+        
+        // Q4 scoring (correct answer is 'notgiven')
+        if (q4 === 'notgiven') score += 1;
+        
+        const percentage = (score / totalQuestions) * 100;
+        const band = percentage >= 75 ? '7.0-8.5' : percentage >= 60 ? '6.0-6.5' : percentage >= 40 ? '5.0-5.5' : '4.0';
+        
+        document.getElementById('scoreMessage').innerHTML = `
+            <span style="color: #2e7d32;">✓ Test Submitted</span><br>
+            <span style="font-size: 0.95rem; color: #555; margin-top: 5px; display: block;">
+                Score: ${score}/${totalQuestions} (${Math.round(percentage)}%)<br>
+                Estimated IELTS Band: ${band}
+            </span>
+        `;
+        document.getElementById('scoreMessage').style.background = '#e8f5e9';
+        
+        // Show detailed review
+        showDetailedReview(q1, q2, q3, q4, score);
+    };
+    
+    function showDetailedReview(q1, q2, q3, q4, score) {
+        let reviewHTML = '<div style="background: white; padding: 15px; border-radius: 5px;">';
+        
+        reviewHTML += '<div style="margin-bottom: 15px;">';
+        reviewHTML += '<strong>Q1 (Multiple Choice):</strong> Your answer: ' + q1.toUpperCase();
+        reviewHTML += q1 === 'b' ? ' <span style="color: green;">✓ Correct</span>' : ' <span style="color: red;">✗ Incorrect - Correct answer: B</span>';
+        reviewHTML += '</div>';
+        
+        reviewHTML += '<div style="margin-bottom: 15px;">';
+        reviewHTML += '<strong>Q2 (Fill in Blank):</strong> Your answer: "' + document.getElementById('q2').value + '"';
+        if (document.getElementById('q2').value.toLowerCase().includes('essential') || 
+            document.getElementById('q2').value.toLowerCase().includes('important')) {
+            reviewHTML += ' <span style="color: green;">✓ Correct</span>';
+        } else {
+            reviewHTML += ' <span style="color: red;">✗ Expected: essential/important/crucial</span>';
+        }
+        reviewHTML += '</div>';
+        
+        reviewHTML += '<div style="margin-bottom: 15px;">';
+        reviewHTML += '<strong>Q3 (Short Answer):</strong> <span style="color: #666;">Response recorded - Review your answer for completeness</span>';
+        reviewHTML += '</div>';
+        
+        reviewHTML += '<div style="margin-bottom: 15px;">';
+        reviewHTML += '<strong>Q4 (True/False/Not Given):</strong> Your answer: ' + q4.toUpperCase();
+        reviewHTML += q4 === 'notgiven' ? ' <span style="color: green;">✓ Correct</span>' : ' <span style="color: red;">✗ Incorrect - Correct answer: Not Given</span>';
+        reviewHTML += '</div>';
+        
+        reviewHTML += '</div>';
+        
+        document.getElementById('reviewSection').innerHTML = reviewHTML;
+    }
+</script>
+
+</body>
+</html>

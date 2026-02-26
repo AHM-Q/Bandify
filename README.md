@@ -1,2 +1,1 @@
-# Bandify
-IELTS Prep System
+# JavaScript

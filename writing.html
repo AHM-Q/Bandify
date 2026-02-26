@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Writing Practice - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>Writing Practice</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="dashboard.html" style="margin-left: 10px;">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Writing Task</h3>
+        <p style="font-weight: 500; color: #444;">Describe a memorable journey you had.</p>
+        <p style="font-size: 0.9rem; color: #888;">Be detailed and use complete sentences. </p>
+
+        <textarea 
+            rows="10" 
+            id="essay" 
+            placeholder="Start writing your essay here..."
+            style="padding: 10px; font-size: 1rem; font-family: Arial, sans-serif;">
+        </textarea>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button onclick="submitEssay()" class="btn-primary">Submit Essay</button>
+            <button onclick="clearEssay()" class="btn-secondary">Clear</button>
+        </div>
+
+        <p id="message" style="margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 5px;"></p>
+        
+        <div id="uploadProgress" style="display: none; margin-top: 10px;">
+            <div style="background: #e0e0e0; height: 20px; border-radius: 5px; overflow: hidden;">
+                <div id="progressBar" style="background: #ff8c00; height: 100%; width: 0%; transition: width 0.3s;"></div>
+            </div>
+            <p style="font-size: 0.9rem; color: #666; margin: 5px 0;">Uploading...</p>
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+    import './aws-config.js';
+    import { submitEssay } from './app.js';
+    
+    window.submitEssay = submitEssay;
+    
+    function clearEssay() {
+        if (confirm('Clear the essay? This cannot be undone.')) {
+            document.getElementById('essay').value = '';
+            document.getElementById('message').innerText = '';
+        }
+    }
+    
+    window.clearEssay = clearEssay;
+    
+    // Show word count as user types
+    document.getElementById('essay').addEventListener('input', (e) => {
+        const wordCount = e.target.value.trim().split(/\s+/).filter(w => w).length;
+        document.title = `Writing Practice - ${wordCount} words`;
+    });
+</script>
+
+</body>
+</html>

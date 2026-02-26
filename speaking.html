@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speaking Practice - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>Speaking Practice</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="dashboard.html" style="margin-left: 10px;">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Speaking Challenge</h3>
+        <p style="font-weight: 500; font-size: 1.1rem; color: #444;">
+            Describe your favorite place.
+        </p>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <button 
+                id="recordBtn"
+                onclick="startPractice()" 
+                class="btn-primary"
+                style="padding: 15px 30px; font-size: 1.1rem; cursor: pointer;">
+                Start Recording
+            </button>
+            <p id="speakMsg" style="margin-top: 15px; font-size: 1rem; color: #666;"></p>
+            <p id="recordingTime" style="font-size: 0.9rem; color: #999;"></p>
+        </div>
+
+        <!-- Transcription Result -->
+        <div id="transcriptionResult" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px;">
+            <h4 style="color: #2e7d32;">Transcription Complete</h4>
+            <p style="margin: 10px 0;"><strong>What you said:</strong></p>
+            <p id="transcribedText" style="background: white; padding: 10px; border-radius: 3px; color: #333;"></p>
+        </div>
+
+        </div>
+
+</div>
+
+<script type="module">
+    import './aws-config.js';
+    import { startPractice, processSpeechRecording } from './app.js';
+    
+    window.startPractice = startPractice;
+    window.processSpeechRecording = processSpeechRecording;
+    
+    // Timer for recording
+    let recordingStartTime;
+    let timerInterval;
+    
+    const originalStartPractice = startPractice;
+    window.startPractice = async function() {
+        const recordBtn = document.getElementById('recordBtn');
+        const isRecording = recordBtn.innerText.includes('Stop');
+        
+        if (!isRecording) {
+            recordingStartTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                document.getElementById('recordingTime').innerText = 
+                    `Recording: ${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 100);
+            recordBtn.innerText = 'Stop Recording';
+            recordBtn.style.background = '#d32f2f';
+        } else {
+            clearInterval(timerInterval);
+            recordBtn.innerText = 'Start Recording';
+            recordBtn.style.background = '';
+            document.getElementById('recordingTime').innerText = '';
+        }
+        
+        await originalStartPractice.call(this);
+    };
+</script>
+
+</body>
+</html>

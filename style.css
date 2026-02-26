@@ -1,0 +1,265 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, #fff8f0 0%, #fffbf7 100%);
+    color: #333;
+    line-height: 1.6;
+}
+
+.navbar {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff7a00 100%);
+    color: white;
+    padding: 18px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+}
+
+.navbar h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.navbar a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    margin-top: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(255, 140, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 140, 0, 0.1);
+}
+
+.card:hover {
+    box-shadow: 0 12px 32px rgba(255, 140, 0, 0.15);
+    transform: translateY(-4px);
+    border-color: rgba(255, 140, 0, 0.2);
+}
+
+.card h1 {
+    font-size: 2.2rem;
+    color: #ff8c00;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+}
+
+.card h3 {
+    color: #ff8c00;
+    font-weight: 700;
+}
+
+.card h2 {
+    color: #ff8c00;
+    font-weight: 700;
+}
+
+.card p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0 0 30px 0;
+}
+
+button {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff7a00 100%);
+    border: none;
+    color: white;
+    padding: 12px 32px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #ff7a00 0%, #ff6600 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #ffe0cc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+/* AWS Integration Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff7a00 100%);
+    border: none;
+    color: white;
+    padding: 12px 32px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #ff7a00 0%, #ff6600 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+}
+
+.btn-secondary {
+    background: #666;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.btn-secondary:hover {
+    background: #444;
+    transform: translateY(-2px);
+}
+
+.btn-module {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff7a00 100%);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-module:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
+}
+
+/* Modal for Sign Up */
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Progress Bar */
+#progressBar {
+    background: linear-gradient(90deg, #ff8c00, #ff7a00);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* AWS Info Boxes */
+.aws-info {
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    background: #f5f5f5;
+    border-left: 4px solid #ff8c00;
+}
+
+.aws-info strong {
+    color: #ff8c00;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .navbar h2 {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}

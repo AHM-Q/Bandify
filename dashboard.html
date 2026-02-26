@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>Banidfy Dashboard</h2>
+    <div>
+        <span id="userName" style="margin-right: 20px;"></span>
+        <a href="index.html">Home</a>
+        <a href="#" onclick="logout()" style="margin-left: 10px;">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    
+    <div class="card">
+        <h3>Your Progress</h3>
+        <p id="userStats">Loading your statistics...</p>
+    </div>
+
+    <div class="card">
+        <h3>AI-Powered Learning Summary</h3>
+        <p id="aiSummary" style="font-style: italic; color: #555;">Generating personalized summary...</p>
+        <small id="summaryTime" style="color: #999;"></small>
+    </div>
+
+    <div class="card">
+        <h3>Select Practice Module</h3>
+
+        <a href="reading.html"><button class="btn-module">Reading</button></a>
+        <a href="writing.html"><button class="btn-module">Writing</button></a>
+        <a href="speaking.html"><button class="btn-module">Speaking</button></a>
+        <a href="listening.html"><button class="btn-module">Listening</button></a>
+    </div>
+
+</div>
+
+<script type="module">
+    import { Auth } from 'aws-amplify';
+    import './aws-config.js';
+    import { loadUserDashboard, logout, loadAISummary } from './app.js';
+    
+    window.loadUserDashboard = loadUserDashboard;
+    window.loadAISummary = loadAISummary;
+    window.logout = logout;
+    
+    // Display user name on load
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const user = await Auth.currentAuthenticatedUser();
+            document.getElementById('userName').innerText = 'Welcome, ' + user.username;
+            await loadUserDashboard();
+            await loadAISummary();
+        } catch (err) {
+            window.location.href = 'login.html';
+        }
+    });
+</script>
+
+</body>
+</html>

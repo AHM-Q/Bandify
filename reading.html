@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reading Practice - Banidfy</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@latest"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>Reading Practice</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="dashboard.html" style="margin-left: 10px;">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Reading Passage</h3>
+        <p style="background: #f5f5f5; padding: 15px; border-radius: 5px; line-height: 1.8;">
+            The Eiffel Tower is a wrought iron lattice tower located on the Champ de Mars in Paris, France. 
+            It was built in 1889 for the World's Fair. The tower stands approximately 330 meters (1,083 feet) tall 
+            and was the world's tallest man-made structure until 1930. Today, it remains one of the most recognizable 
+            and visited monuments in the world, attracting millions of tourists every year.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Comprehension Question</h3>
+        <p style="font-weight: 500;">What city is the Eiffel Tower located in?</p>
+        
+        <input id="answer" placeholder="Type your answer here..." style="padding: 10px; font-size: 1rem;">
+        
+        <button onclick="checkAnswer()" class="btn-primary" style="margin-top: 10px;">Submit Answer</button>
+
+        <p id="result" style="margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 5px;"></p>
+    </div>
+
+</div>
+
+<script type="module">
+    import './aws-config.js';
+    import { checkAnswer } from './app.js';
+    
+    window.checkAnswer = checkAnswer;
+</script>

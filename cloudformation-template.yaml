@@ -1,0 +1,421 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Banidfy AWS Learning Platform'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: banidfy
+    Description: Project name for resource naming
+
+Resources:
+  # =====================
+  # S3 Bucket for Storage
+  # =====================
+  BanidifyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-learning-platform'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedOrigins:
+              - '*'
+            MaxAgeSeconds: 3000
+
+  BanidifyBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BanidifyBucket
+      PolicyText:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+            Resource: !Sub '${BanidifyBucket.Arn}/*'
+
+  # =====================
+  # DynamoDB Tables
+  # =====================
+  BanidifyUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BanidifyUsers
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+
+  BanidifyPracticeResultsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BanidifyPracticeResults
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: resultId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: resultId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: userIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  BanidifyTranscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BanidifyTranscriptions
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: jobId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobId
+          KeyType: HASH
+
+  # =====================
+  # Cognito User Pool
+  # =====================
+  BanidifyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${ProjectName}-user-pool'
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+
+  BanidifyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${ProjectName}-web-client'
+      UserPoolId: !Ref BanidifyCognitoUserPool
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+
+  BanidifyCognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: !Sub '${ProjectName}-identity-pool'
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref BanidifyCognitoUserPoolClient
+          ProviderName: !GetAtt BanidifyCognitoUserPool.ProviderName
+
+  # =====================
+  # IAM Role for Lambda
+  # =====================
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:DeleteItem'
+                Resource:
+                  - !GetAtt BanidifyUsersTable.Arn
+                  - !GetAtt BanidifyPracticeResultsTable.Arn
+                  - !GetAtt BanidifyTranscriptionsTable.Arn
+                  - !Sub '${BanidifyPracticeResultsTable.Arn}/index/*'
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource: !Sub '${BanidifyBucket.Arn}/*'
+        - PolicyName: TranscribeAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'transcribe:StartTranscriptionJob'
+                  - 'transcribe:GetTranscriptionJob'
+                Resource: '*'
+        - PolicyName: PollyAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'polly:SynthesizeSpeech'
+                Resource: '*'
+        - PolicyName: BedrockAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'bedrock:InvokeModel'
+                  - 'bedrock:InvokeModelWithResponseStream'
+                Resource:
+                  - 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20241022'
+                  - 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-haiku-20250301'
+                  - 'arn:aws:bedrock:*::foundation-model/*'
+
+  # =====================
+  # Lambda Functions
+  # =====================
+  VerifyAnswerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-verify-answer'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          export const handler = async (event) => {
+            console.log('Event:', JSON.stringify(event));
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Placeholder function' })
+            };
+          };
+
+  SubmitEssayFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-submit-essay'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          export const handler = async (event) => {
+            console.log('Event:', JSON.stringify(event));
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Placeholder function' })
+            };
+          };
+
+  TranscribeSpeechFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-transcribe-speech'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          export const handler = async (event) => {
+            console.log('Event:', JSON.stringify(event));
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Placeholder function' })
+            };
+          };
+
+  SpeakFeedbackFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-speak-feedback'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          export const handler = async (event) => {
+            console.log('Event:', JSON.stringify(event));
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Placeholder function' })
+            };
+          };
+
+  GenerateSummaryFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-generate-summary'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 60
+      Code:
+        ZipFile: |
+          export const handler = async (event) => {
+            console.log('Event:', JSON.stringify(event));
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Generate summary function - deploy from lambda/generate-summary.js' })
+            };
+          };
+
+  # =====================
+  # API Gateway
+  # =====================
+  LearningAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub '${ProjectName}-api'
+      Description: Learning API for Banidfy platform
+
+  APIResourceUsers:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LearningAPI
+      ParentId: !GetAtt LearningAPI.RootResourceId
+      PathPart: user
+
+  APIDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - VerifyAnswerFunction
+      - SubmitEssayFunction
+      - TranscribeSpeechFunction
+      - SpeakFeedbackFunction
+      - GenerateSummaryFunction
+    Properties:
+      RestApiId: !Ref LearningAPI
+      StageName: dev
+
+  # =====================
+  # CloudFront Distribution
+  # =====================
+  BanidifyCloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: index.html
+        Enabled: true
+        Comment: Banidfy Learning Platform CDN
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt BanidifyBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          MinTTL: 0
+          DefaultTTL: 300
+          MaxTTL: 31536000
+
+# =====================
+# Outputs
+# =====================
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref BanidifyCognitoUserPool
+    Export:
+      Name: !Sub '${ProjectName}-user-pool-id'
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref BanidifyCognitoUserPoolClient
+    Export:
+      Name: !Sub '${ProjectName}-client-id'
+
+  IdentityPoolId:
+    Description: Cognito Identity Pool ID
+    Value: !Ref BanidifyCognitoIdentityPool
+    Export:
+      Name: !Sub '${ProjectName}-identity-pool-id'
+
+  S3BucketName:
+    Description: S3 Bucket for file storage
+    Value: !Ref BanidifyBucket
+    Export:
+      Name: !Sub '${ProjectName}-bucket'
+
+  APIEndpoint:
+    Description: API Gateway endpoint
+    Value: !Sub 'https://${LearningAPI}.execute-api.${AWS::Region}.amazonaws.com/dev'
+    Export:
+      Name: !Sub '${ProjectName}-api-endpoint'
+
+  CloudFrontDomain:
+    Description: CloudFront distribution domain
+    Value: !GetAtt BanidifyCloudFront.DomainName
+    Export:
+      Name: !Sub '${ProjectName}-cloudfront-domain'
+
+  UsersTableName:
+    Description: DynamoDB Users Table
+    Value: !Ref BanidifyUsersTable
+    Export:
+      Name: !Sub '${ProjectName}-users-table'
+
+  PracticeResultsTableName:
+    Description: DynamoDB Practice Results Table
+    Value: !Ref BanidifyPracticeResultsTable
+    Export:
+      Name: !Sub '${ProjectName}-results-table'
+
+  TranscriptionsTableName:
+    Description: DynamoDB Transcriptions Table
+    Value: !Ref BanidifyTranscriptionsTable
+    Export:
+      Name: !Sub '${ProjectName}-transcriptions-table'
+
+  LambdaRoleArn:
+    Description: IAM Role for Lambda functions
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: !Sub '${ProjectName}-lambda-role-arn'
